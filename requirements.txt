@@ -1,10 +1,10 @@
-import subprocess
-import sys
-from time import sleep
-import os
-import asyncio
-import random
-from datetime import datetime
-import platform
-from telegram import Bot
-from telegram.error import TelegramError
+subprocess
+sys
+time 
+sleep
+os
+asyncio
+random
+datetime 
+platform
+telegram
