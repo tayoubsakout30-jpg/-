@@ -1,1 +1,1 @@
-# No external dependencies
+# No external Python dependencies
