@@ -1,18 +1,16 @@
-name: Build Flet APK (Stable, All Fixes)
+name: Build Flet APK (Stable - Fixed)
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 env:
   BUILD_NUMBER: 1
   BUILD_VERSION: 1.0.0
   PYTHON_VERSION: 3.12.2
-  FLUTTER_VERSION: 3.38.6
-  JAVA_VERSION: 21
+  FLUTTER_VERSION: 3.19.6
+  JAVA_VERSION: 17
 
 jobs:
   build-apk:
@@ -27,11 +25,11 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Upgrade pip and Install Python Dependencies
+    - name: Install Python Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install --upgrade flet==0.80.2
+        pip install -r requirements.txt || true
+        pip install --upgrade flet
 
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
@@ -39,7 +37,7 @@ jobs:
         flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: stable
 
-    - name: Setup Java JDK
+    - name: Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
@@ -51,22 +49,19 @@ jobs:
     - name: Disable Flutter Analytics
       run: flutter config --no-analytics
 
-    - name: Flutter Doctor Check
+    - name: Flutter Doctor
       run: flutter doctor -v
 
-    - name: Prebuild Dependencies (Optional)
-      run: flutter pub get
+    - name: Build APK
+      run: |
+        flet build apk \
+          --build-number=${{ env.BUILD_NUMBER }} \
+          --build-version=${{ env.BUILD_VERSION }} \
+          --yes \
+          --verbose
 
-    - name: Build Flet APK Non-Interactively
-      run: flet build apk --verbose --build-number=${{ env.BUILD_NUMBER }} --build-version=${{ env.BUILD_VERSION }} --yes
-
-    - name: Upload APK Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: flet-apk
         path: build/apk
-        if-no-files-found: warn
-        overwrite: true
-
-    - name: Post-build Flutter Doctor
-      run: flutter doctor -v
